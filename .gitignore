@@ -1,0 +1,19 @@
+# Java
+*.class
+
+# Maven
+target/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# VS Code
+.vscode/
+
+# Node.js
+node_modules/
+
+# Logs
+*.log
