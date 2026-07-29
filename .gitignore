@@ -17,3 +17,6 @@ node_modules/
 
 # Logs
 *.log
+
+# Database credentials
+backend/src/main/resources/db.properties
