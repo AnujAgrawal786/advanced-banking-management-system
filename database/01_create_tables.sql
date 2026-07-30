@@ -7,6 +7,7 @@
 CREATE TABLE roles (
     role_id NUMBER NOT NULL,
     role_name VARCHAR2(30) NOT NULL,
+    role_description VARCHAR2(200),
     CONSTRAINT pk_roles PRIMARY KEY (role_id),
     CONSTRAINT uq_roles_name UNIQUE (role_name)
 );
