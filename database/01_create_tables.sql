@@ -32,6 +32,7 @@ CREATE TABLE users (
 CREATE TABLE user_roles (
     user_id NUMBER NOT NULL,
     role_id NUMBER NOT NULL,
+    role_description VARCHAR2(200),
     CONSTRAINT pk_user_roles PRIMARY KEY (user_id, role_id),
     CONSTRAINT fk_user_roles_user FOREIGN KEY (user_id)
         REFERENCES users(user_id),
