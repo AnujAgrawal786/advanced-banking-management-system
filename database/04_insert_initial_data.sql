@@ -13,4 +13,14 @@ INSERT INTO roles VALUES
 INSERT INTO roles VALUES
 (3, 'CUSTOMER', 'Bank customer with access to personal banking services.');
 
+
+INSERT INTO customers
+(customer_id, user_id, first_name, last_name,
+ date_of_birth, address, city, state, pincode, phone)
+VALUES
+(2001, 1001, 'Anuj', 'Agrawal',
+ DATE '2003-01-15', 'Address',
+ 'Panna', 'Madhya Pradesh',
+ '488001', '9876543210');
+
 COMMIT;

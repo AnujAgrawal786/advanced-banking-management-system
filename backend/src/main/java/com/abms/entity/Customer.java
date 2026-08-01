@@ -13,7 +13,9 @@ public class Customer {
 	private String city;
 	private String state;
 	private String pincode;
+	
 	private LocalDateTime createdAt;
+	
 	
 	
 	public Long getCustomerId() {
