@@ -7,12 +7,28 @@ public class Transaction {
 	private Long transactionId;
 	private Long accountId;
 	private String transactionType;
+	private String transactionReference;
 	private BigDecimal amount;
+	private Long initiatedBy;
 	private BigDecimal balanceAfter;
 	private String description;
 	private LocalDateTime transactionDate;
 	private String status;
 	
+	
+
+	public void setTransactionReference(String transactionReference) {
+		this.transactionReference = transactionReference;
+	}
+	public Long getInitiatedBy() {
+		return initiatedBy;
+	}
+	public void setInitiatedBy(Long initiatedBy) {
+		this.initiatedBy = initiatedBy;
+	}
+	public String getTransactionReference() {
+		return transactionReference;
+	}
 	
 	public Long getTransactionId() {
 		return transactionId;

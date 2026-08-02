@@ -82,18 +82,35 @@ CREATE TABLE transactions (
     transaction_reference VARCHAR2(50) NOT NULL,
     transaction_type VARCHAR2(20) NOT NULL,
     amount NUMBER(15,2) NOT NULL,
+    balance_after NUMBER(15,2),
+    description VARCHAR2(255),
     status VARCHAR2(20) DEFAULT 'PENDING' NOT NULL,
     initiated_by NUMBER NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT pk_transactions PRIMARY KEY (transaction_id),
-    CONSTRAINT uq_transactions_reference UNIQUE (transaction_reference),
-    CONSTRAINT ck_transactions_type CHECK (transaction_type IN ('DEPOSIT', 'WITHDRAWAL', 'TRANSFER')),
-    CONSTRAINT ck_transactions_amount CHECK (amount > 0),
-    CONSTRAINT ck_transactions_status CHECK (status IN ('PENDING', 'SUCCESS', 'FAILED', 'REVERSED')),
-    CONSTRAINT fk_transactions_user FOREIGN KEY (initiated_by)
-        REFERENCES users(user_id)
-);
+    account_id NUMBER NOT NULL,
+    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
+    CONSTRAINT pk_transactions PRIMARY KEY (transaction_id),
+
+    CONSTRAINT uq_transactions_reference
+        UNIQUE (transaction_reference),
+
+    CONSTRAINT ck_transactions_type
+        CHECK (transaction_type IN ('DEPOSIT', 'WITHDRAWAL', 'TRANSFER')),
+
+    CONSTRAINT ck_transactions_amount
+        CHECK (amount > 0),
+
+    CONSTRAINT ck_transactions_status
+        CHECK (status IN ('PENDING', 'SUCCESS', 'FAILED', 'REVERSED')),
+
+    CONSTRAINT fk_transactions_user
+        FOREIGN KEY (initiated_by)
+        REFERENCES users(user_id),
+
+    CONSTRAINT fk_transactions_account
+        FOREIGN KEY (account_id)
+        REFERENCES accounts(account_id)
+);
 -- 7. TRANSACTION_ENTRIES
 CREATE TABLE transaction_entries (
     entry_id NUMBER NOT NULL,
