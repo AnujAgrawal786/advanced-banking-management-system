@@ -8,11 +8,18 @@ public class AuditLog {
 	private String action;
 	private String entityName;
 	private Long entityId;
+	private String description;
 	private String ipAddress;
 	private LocalDateTime createdAt;
 	
 	
 	
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
 	public Long getAuditLogId() {
 		return auditLogId;
 	}
