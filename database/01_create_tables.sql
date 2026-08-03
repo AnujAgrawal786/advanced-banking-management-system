@@ -149,6 +149,8 @@ CREATE TABLE audit_logs (
     log_id NUMBER NOT NULL,
     user_id NUMBER NOT NULL,
     action VARCHAR2(50) NOT NULL,
+    entity_id Number,
+    entity_name VARCHAR2(500),
     description VARCHAR2(500),
     ip_address VARCHAR2(45),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
