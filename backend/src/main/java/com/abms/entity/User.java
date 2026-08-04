@@ -8,12 +8,30 @@ public class User {
    private String password;
    private String email;
    private String status;
+   private String mobile;
+   private LocalDateTime updatedAt;
    private LocalDateTime createdAt;
    
    public User() {
 	   
    }
    
+public String getMobile() {
+	return mobile;
+}
+
+public void setMobile(String mobile) {
+	this.mobile = mobile;
+}
+
+public LocalDateTime getUpdatedAt() {
+	return updatedAt;
+}
+
+public void setUpdatedAt(LocalDateTime updatedAt) {
+	this.updatedAt = updatedAt;
+}
+
 public Long getUserId() {
 	return userId;
 }

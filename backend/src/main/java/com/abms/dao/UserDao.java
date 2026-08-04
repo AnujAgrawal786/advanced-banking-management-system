@@ -1,10 +1,12 @@
 package com.abms.dao;
 
 import java.sql.Connection;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,14 +16,19 @@ import com.abms.util.DBConnection;
 public class UserDao {
 	 
 	private User mapUser(ResultSet rs) throws SQLException {
+
 	    User user = new User();
 
 	    user.setUserId(rs.getLong("user_id"));
-	    user.setUserName(rs.getString("user_name"));
-	    user.setPassword(rs.getString("password"));
+	    user.setUserName(rs.getString("username"));
+	    user.setPassword(rs.getString("password_hash"));
 	    user.setEmail(rs.getString("email"));
 	    user.setStatus(rs.getString("status"));
-
+	    user.setMobile(rs.getString("MOBILE"));
+	    Timestamp updated = rs.getTimestamp("updated_at");
+	    if(updated !=null) {
+	    	user.setUpdatedAt(updated.toLocalDateTime());
+	    }
 	    Timestamp timestamp = rs.getTimestamp("created_at");
 
 	    if (timestamp != null) {
@@ -29,10 +36,13 @@ public class UserDao {
 	    }
 	    return user;
 	}
-   public  boolean createUser(User user){
+  
+	
+	public  boolean createUser(User user){
+
 	   String sql=" INSERT INTO users\r\n"
-	   		+ "    (user_id, user_name, password, email, status, created_at)\r\n"
-	   		+ "    VALUES (?, ?, ?, ?, ?, ?)";
+	   		+ "    (user_id, username, password_hash, email, status, created_at,mobile,updated_at) "
+	   		+ "    VALUES (?, ?, ?, ?, ?, ?,?,?)";
 	   int res;
 	try (Connection conn = DBConnection.getConnection();
 			PreparedStatement pstm = conn.prepareStatement(sql)) {
@@ -43,7 +53,9 @@ public class UserDao {
 			 pstm.setString(3, user.getPassword());
 			 pstm.setString(4, user.getEmail());
 			 pstm.setString(5, user.getStatus());
-			 pstm.setObject(6, user.getCreatedAt());
+			 pstm.setTimestamp(6, java.sql.Timestamp.valueOf(user.getCreatedAt()));
+			 pstm.setString(7, user.getMobile());
+			 pstm.setTimestamp(8, java.sql.Timestamp.valueOf(user.getUpdatedAt()));
 			 res=pstm.executeUpdate();
 		 return res==1;
 
@@ -57,6 +69,7 @@ public class UserDao {
    }
    
    public User findById(Long userId) {
+
 	   String sql="select * from users where user_id=?";
 	   try (Connection conn = DBConnection.getConnection();
 			PreparedStatement pstm = conn.prepareStatement(sql)) {
@@ -77,65 +90,61 @@ public class UserDao {
 	   
    
    
-	public List<User> findUserByUserName(String name){
-		String sql="select * from users where user_name=?";
-		List<User> users=new ArrayList<>();
+	public User findUserByUserName(String name){
+
+		String sql="select * from users where username=?";
 		try (Connection conn = DBConnection.getConnection();
 				PreparedStatement pstm = conn.prepareStatement(sql)) {
           pstm.setString(1, name);
           try (ResultSet rs=pstm.executeQuery()){
-		    while(rs.next()) {
-		    	 
-                users.add(mapUser(rs));
+		    if(rs.next()) {
+		    	 return mapUser(rs);
 		    }
-		return users;
+		return null;
 		
-		}catch(SQLException e) {
+		}}catch(SQLException e) {
 			
 			e.printStackTrace();
-			return new ArrayList<>();
+			return null;
 		}
-          } catch (SQLException e) {
-
-			e.printStackTrace();
-			return new ArrayList<>();
-		}
-
-	}
+          }
 	
 	
-	public List<User> findUserByEmail(String email){
-		List<User> users=new ArrayList<>();
+	
+	
+	public User findUserByEmail(String email){
+
 		String sql="select * from users where email=?";
 		try (Connection conn = DBConnection.getConnection();
 				PreparedStatement pstm = conn.prepareStatement(sql)) {
 			 pstm.setString(1, email);
 			 
 			 try(ResultSet rs=pstm.executeQuery()){
-				 while(rs.next()) {
+				 if(rs.next()) {
 			
-	                users.add(mapUser(rs));
+	                return mapUser(rs);
 			    }
-			return users;
-			 }catch(SQLException e){
+			return null;
+			}catch(SQLException e){
 				 e.printStackTrace();
-			    return new ArrayList<>();
-			 }
+                  return null;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return new ArrayList<>();
+           return null;
 		}
 
 	}
 	
-	public boolean updatePassword(Long userId,String password) {
-		String sql="update users set password=? where user_id=?";
+	public boolean updatePassword(String username,String password) {
+		String sql="update users set password_hash= ? ,updated_at=? where username=?";
 		try (Connection conn = DBConnection.getConnection();
 				PreparedStatement pstm = conn.prepareStatement(sql)) {
 			
 			
 				pstm.setString(1,password);
-				pstm.setLong(2, userId);
+				pstm.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+				pstm.setString(3, username);
 				return pstm.executeUpdate()==1;
 				
 		
@@ -147,15 +156,16 @@ public class UserDao {
 
 	}
 	
-	public boolean updateStatus(String status,Long user_id) {
-		String sql="update users set status=? where user_id=?";
+	public boolean updateStatus(String status,String username) {
+		String sql="update users set status=? ,updated_at=? where username=?";
 		
 		try (Connection conn = DBConnection.getConnection();
 				PreparedStatement pstm = conn.prepareStatement(sql)) {
 			
 			
 				pstm.setString(1, status);
-				pstm.setLong(2, user_id);
+				pstm.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+				pstm.setString(3, username);
 				return pstm.executeUpdate()==1;
 				
 			}catch (SQLException e) {
@@ -164,11 +174,12 @@ public class UserDao {
 		}
 	}
 	
-	public boolean deleteUser(Long userId) {
-		String sql="delete from users where user_Id=?";
+	public boolean deleteUser(String username) {
+
+		String sql="delete from users where username=?";
 		try (Connection conn = DBConnection.getConnection();
 				PreparedStatement pstm = conn.prepareStatement(sql)) {
-		 pstm.setLong(1, userId);
+		 pstm.setString(1, username);
 		 return pstm.executeUpdate()==1;	
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -179,11 +190,14 @@ public class UserDao {
 	}
 	public boolean updateUser(User user) {
 
+
 	    String sql = "UPDATE users SET "
-	            + "user_name = ?, "
-	            + "password = ?, "
+	            + "username = ?, "
+	            + "password_hash = ?, "
 	            + "email = ?, "
-	            + "status = ? "
+	            + "status = ?, "
+	            + "mobile = ?, "
+	            + "updated_at = ? "
 	            + "WHERE user_id = ?";
 
 	    try (Connection conn = DBConnection.getConnection();
@@ -193,8 +207,9 @@ public class UserDao {
 	        pstm.setString(2, user.getPassword());
 	        pstm.setString(3, user.getEmail());
 	        pstm.setString(4, user.getStatus());
-	        pstm.setLong(5, user.getUserId());
-
+	        pstm.setString(5, user.getMobile());
+	        pstm.setTimestamp(6, Timestamp.valueOf(user.getUpdatedAt()));
+	        pstm.setLong(7, user.getUserId());
 	        int result = pstm.executeUpdate();
 
 	        return result == 1;
@@ -203,6 +218,25 @@ public class UserDao {
 	        e.printStackTrace();
 	        return false;
 	    }
+	}
+	public List<User> viewAllUser(){
+
+		String sql="select * from users ";
+		try (Connection conn = DBConnection.getConnection();
+				PreparedStatement pstm = conn.prepareStatement(sql);
+				ResultSet rs=pstm.executeQuery()) {
+			 List<User> users=new ArrayList<>();
+			 
+				 while(rs.next()) {
+			
+	                users.add(mapUser(rs));
+			    }
+			return users;}
+			 catch(SQLException e){
+				 e.printStackTrace();
+			    return new ArrayList<>();
+			 }
+		
 	}
 	
 }
