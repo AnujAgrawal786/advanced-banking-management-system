@@ -49,7 +49,7 @@ public class BeneficiaryService {
 			return false;
 		}
 		if(!validation(beneficiary)) {
-			
+			return false;
 		}
 	   	return beneficiaryDao.createBeneficiary(beneficiary);
 	     }
