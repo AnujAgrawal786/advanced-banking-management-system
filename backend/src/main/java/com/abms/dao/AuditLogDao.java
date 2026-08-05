@@ -1,9 +1,12 @@
 package com.abms.dao;
 
 import java.sql.Connection;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,7 +95,7 @@ public class AuditLogDao {
 	}
 	
 
-	public List<AuditLog> findAllAuditLogs(){
+	public List<AuditLog> findAll(){
 		String sql="SELECT * FROM audit_logs";
 		try (Connection conn = DBConnection.getConnection();
 				PreparedStatement pstm = conn.prepareStatement(sql);
@@ -107,7 +110,50 @@ public class AuditLogDao {
 			return new ArrayList<>();
 		}
 	}
-	
+	public List<AuditLog> getAuditLogsByDateRange(LocalDateTime fromDate, LocalDateTime toDate) {
+      String sql="SELECT * FROM audit_logs "
+      		+ "WHERE created_at BETWEEN ? AND ? "
+      		+ "ORDER BY created_at DESC";
+      try (Connection conn = DBConnection.getConnection();
+			PreparedStatement pstm = conn.prepareStatement(sql)) {
+    	  List<AuditLog> auditLogs=new ArrayList<>();
+    	  pstm.setTimestamp(1, Timestamp.valueOf(fromDate));
+    	  pstm.setTimestamp(2, Timestamp.valueOf(toDate));
+    	  try(ResultSet rs=pstm.executeQuery()) {
+    		  while(rs.next()) {
+    			  auditLogs.add(mapAudit(rs));
+    		  }
+    		  return auditLogs;
+    	  }
+      } catch (SQLException e) {
+		e.printStackTrace();
+		return new ArrayList<>();
+	}
+	}
+	public List<AuditLog> findByUserIdAndDateRange(Long userId,LocalDateTime fromDate, LocalDateTime toDate) {
+		 String sql="SELECT * FROM audit_logs "
+		      		+ "WHERE user_id=? "
+		      		+ "And created_at BETWEEN ? AND ? "
+		      		+ "ORDER BY created_at DESC";
+		      try (Connection conn = DBConnection.getConnection();
+					PreparedStatement pstm = conn.prepareStatement(sql)) {
+		    	  List<AuditLog> auditLogs=new ArrayList<>();
+		    	  pstm.setLong(1, userId);
+		    	  pstm.setTimestamp(2, Timestamp.valueOf(fromDate));
+		    	  pstm.setTimestamp(3, Timestamp.valueOf(toDate));
+		    	  try(ResultSet rs=pstm.executeQuery()) {
+		    		  while(rs.next()) {
+		    			  auditLogs.add(mapAudit(rs));
+		    		  }
+		    		  return auditLogs;
+		    	  }
+		      } catch (SQLException e) {
+				e.printStackTrace();
+				return new ArrayList<>();
+			}
+	       
+	       
+		}
 	private AuditLog mapAudit(ResultSet rs)throws SQLException {
 		AuditLog auditLog=new AuditLog();
 		auditLog.setAuditLogId(rs.getLong("log_id"));
